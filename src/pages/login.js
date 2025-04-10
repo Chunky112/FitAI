@@ -1,20 +1,42 @@
 import Head from 'next/head';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { useRouter } from 'next/router';
 import Link from 'next/link';
 
 export default function Login() {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+  const router = useRouter();
+  const [email, setEmail] = useState('test@example.com');
+  const [password, setPassword] = useState('password123');
   const [rememberMe, setRememberMe] = useState(false);
+  const [error, setError] = useState('');
+
+  useEffect(() => {
+    // Check if user is already logged in
+    const isLoggedIn = localStorage.getItem('fitai_test_user');
+    if (isLoggedIn) {
+      router.push('/dashboard');
+    }
+  }, [router]);
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    // In a real implementation, this would handle authentication
-    console.log('Login attempt with:', { email, password, rememberMe });
-    // For demo purposes, we'll just redirect to a hypothetical dashboard
-    window.location.href = '/';
+    
+    // For demo purposes, we'll accept any login with the test credentials
+    if (email === 'test@example.com' && password === 'password123') {
+      // Store login state in localStorage
+      localStorage.setItem('fitai_test_user', JSON.stringify({
+        email,
+        name: 'Test User',
+        loggedInAt: new Date().toISOString()
+      }));
+      
+      // Redirect to dashboard
+      router.push('/dashboard');
+    } else {
+      setError('Invalid credentials. Please use test@example.com / password123');
+    }
   };
 
   return (
@@ -34,6 +56,18 @@ export default function Login() {
               <h1 className="text-2xl font-bold text-gray-900 mb-6 text-center">
                 Log In to Your Account
               </h1>
+              
+              {error && (
+                <div className="mb-6 bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded">
+                  {error}
+                </div>
+              )}
+              
+              <div className="mb-6 bg-blue-50 border border-blue-200 text-blue-600 px-4 py-3 rounded">
+                <p className="font-medium">Test Account Credentials:</p>
+                <p>Email: test@example.com</p>
+                <p>Password: password123</p>
+              </div>
               
               <form onSubmit={handleSubmit} className="space-y-6">
                 <div>
